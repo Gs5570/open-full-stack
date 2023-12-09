@@ -19,5 +19,4 @@ sequenceDiagram
     activate Notes
     Notes-->>-user: notes displayed to user
 
-
 ```
