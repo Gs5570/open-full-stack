@@ -8,3 +8,17 @@ The application returns the number of time good, bad, and neutral feedbacks have
 ## feature
 
 users shall click button to provide feedback.
+
+## Technologies
+
+1. React
+2. Javascript
+3. Html
+4. Css
+
+## How to the App Locally
+
+1. git clone the repository
+2. cd into folder
+3. run "npm install"
+4. run "npm run dev"
