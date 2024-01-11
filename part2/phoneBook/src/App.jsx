@@ -11,6 +11,7 @@ import axios from 'axios';
 import PhoneBookForm from './components/phoneBookform';
 import SearchFilter from './components/SearchFilter';
 import DisplayPhoneBookEntries from './components/DisplayPhoneBookEntries';
+import phoneBookService from './service/phoneBookService';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -18,18 +19,13 @@ const App = () => {
   const [phone, setPhone] = useState(''); // state for the number typed by the user
   const [filterData, setFilterData] = useState(''); // state for the entry that the user is searching
 
+  console.log(newName);
+  console.log(phone);
   useEffect(() => {
-    getPersons();
+    const response = phoneBookService.getNumber();
+    response.then((response) => setPersons(response.data));
+    response.catch((error) => console.log(error));
   }, []);
-  /**
-   * fetch data from json server 'db.json files'
-   */
-  async function getPersons() {
-    let response = await axios.get('http://localhost:3000/persons');
-
-    let personsData = response.data;
-    setPersons(personsData);
-  }
 
   /**
    * handle input changed for the name
@@ -48,18 +44,58 @@ const App = () => {
   }
 
   /**
-   * submit form Data and update the states persons after user add values to the phonebook
+   * submit form Data and update the states persons after user add values to the phoneBook
    */
   function handleSubmit(event) {
     event.preventDefault();
 
     const existingUser = persons.find((person) => person.name === newName);
+    console.log(existingUser);
 
-    existingUser
-      ? alert('user exist already')
-      : setPersons((prevState) => {
-          return [...prevState, { name: newName, number: phone }];
+    // existingUser
+    //   ? alert('user exist already')
+    //   : setPersons((prevState) => {
+    //       return [...prevState, { name: newName, number: phone }];
+    //     });
+
+    if (
+      existingUser &&
+      (existingUser.name === newName || existingUser.phone === phone)
+    ) {
+      // alert('user exist already');
+      if (
+        window.confirm(
+          `${existingUser.name} is already added to the phonebook, Do you want to replace the old number with the new one`
+        )
+      ) {
+        // window.open('exit.html', 'Thanks for Visiting!');
+        const response = phoneBookService.changeNumber(existingUser.id, {
+          name: newName,
+          number: phone,
         });
+        response.then((response) => {
+          console.log(response.data);
+          setPersons((prevState) => {
+            return [...prevState, response.data];
+          });
+        });
+        response.catch((error) => console.log(error));
+
+        location.reload();
+      }
+    } else {
+      const response = phoneBookService.addNumber({
+        name: newName,
+        number: phone,
+      });
+
+      response.then((response) => {
+        setPersons((prevState) => {
+          return [...prevState, response.data];
+        });
+      });
+      response.catch((error) => console.log(error));
+    }
   }
 
   /**
@@ -97,7 +133,11 @@ const App = () => {
         newName={newName}
       />
       <SearchFilter handleFilter={handleFilter} />
-      <DisplayPhoneBookEntries searchResult={searchResult} persons={persons} />
+      <DisplayPhoneBookEntries
+        searchResult={searchResult}
+        persons={persons}
+        setPersons={setPersons}
+      />
     </div>
   );
 };
