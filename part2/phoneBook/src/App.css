@@ -19,3 +19,10 @@
   justify-content: center;
   gap: 10px;
 }
+
+.inputs-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+}

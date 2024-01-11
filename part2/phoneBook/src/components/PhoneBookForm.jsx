@@ -10,7 +10,7 @@ export default function PhoneBookForm({
     <div>
       <h3>Add entry to phone book</h3>
       <form>
-        <div>
+        <div className="inputs-container">
           <label>
             name:{' '}
             <input
