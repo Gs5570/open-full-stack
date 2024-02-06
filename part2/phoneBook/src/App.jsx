@@ -104,7 +104,7 @@ const App = () => {
    */
   function handleFilter(event) {
     let filter = event.target.value;
-    console.log(filter);
+    // console.log(filter);
     setFilterData(() => filter);
   }
 
