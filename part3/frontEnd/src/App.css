@@ -1,0 +1,28 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.app-container button {
+  margin: 10px;
+}
+.app-container button:hover {
+  cursor: pointer;
+  box-shadow: coral 0px 5px 15px;
+}
+
+.phone-record {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+
+.inputs-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+}

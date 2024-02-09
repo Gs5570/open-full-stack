@@ -1,6 +1,6 @@
 # Open Full Stack Curriculum
 
-## Directory Structure:
+## Directory Structure
 
 1. part0:
 2. part1:
