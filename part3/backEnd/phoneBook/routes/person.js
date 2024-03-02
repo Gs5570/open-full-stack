@@ -1,87 +1,82 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
+const PhoneBook = require('../models/phoneBook');
+const errorHandler = require('../middleware/errorhandler');
 
-const personData = require('../public/data/personsData.json');
-const personDataPath = path.join(__dirname, '../public/data/personsData.json');
-
-/* GET users listing. */
-router.get('/persons', function (req, res, next) {
-  res.send(personData);
-});
-
-// step 3
-router.get('/persons/:id', function (req, res, next) {
-  let reqID = req.params.id;
-  let personEntry = personData.findIndex((person) => {
-    return person.id === Number(reqID);
-  });
-
-  if (personEntry) {
-    res.send(JSON.stringify(personEntry));
-  } else {
-    res.send(`resource does not exist`).status(204);
-  }
-});
-//step 4
-router.delete('/persons/:id', function (req, res, next) {
-  let reqID = req.params.id;
-  const indexOfArr = personData.findIndex(
-    (person) => person.id === Number(reqID)
-  );
-  if (indexOfArr !== -1) {
-    personData.splice(indexOfArr, 1);
-    // Write updated data back to file
-    fs.writeFile(personDataPath, JSON.stringify(personData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Internal server error');
-      } else {
-        res.send('Deleted successfully');
-      }
-    });
-  } else {
-    res.status(404).send(`Resource does not exist`);
+router.get('/persons', async function (req, res, next) {
+  try {
+    const allEntries = await PhoneBook.find({});
+    res.status(200).json(allEntries);
+    console.log('All users fetched successfully');
+  } catch (error) {
+    next(new Error('No record exist')); // Throw custom error message
   }
 });
 
-//step 5
-router.post('/persons', function (req, res, next) {
+router.get('/persons/:id', async function (req, res, next) {
+  let reqID = req.params.id;
+
+  try {
+    const foundPhoneEntry = await PhoneBook.findById(reqID).exec();
+    if (foundPhoneEntry) {
+      res.status(200).json(foundPhoneEntry);
+    }
+  } catch (error) {
+    next(new Error('Id does not exist')); // Throw custom error message
+  }
+});
+
+router.delete('/persons/:id', async function (req, res, next) {
+  let reqID = req.params.id;
+
+  try {
+    const deletedEntry = await PhoneBook.findByIdAndDelete(reqID);
+    if (deletedEntry) {
+      res.status(200).json('Deleted successfully');
+    }
+  } catch (error) {
+    next(new Error('Cannot delete entry'));
+  }
+});
+
+router.post('/persons', async function (req, res, next) {
   let body = req.body;
-  console.log(body);
 
-  let existingName = personData.find((person) => {
-    return person.name == req.body.name;
-  });
-
-  let existingNumber = personData.find(
-    (person) => person.number == req.body.number
-  );
-
-  console.log('existing number', existingNumber);
-  console.log('exiting name', existingName);
-
-  if (existingName) {
-    res.status(409).send('user already exist');
-  } else if (existingNumber) {
-    res.status(409).send('phone number already exist');
-  } else {
-    // Generate new ID
-    const newId = Math.max(...personData.map((person) => person.id)) + 1;
-    body.id = newId;
-
-    personData.push(body);
-
-    // Write updated data back to file
-    fs.writeFile(personDataPath, JSON.stringify(personData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Internal server error');
-      } else {
-        res.send('Created successfully');
-      }
+  try {
+    const createPhoneEntry = new PhoneBook({
+      name: req.body.name,
+      number: req.body.number,
     });
+    const result = await createPhoneEntry.save();
+    res.status(201).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).end();
+  }
+});
+
+router.patch('/persons', async function (req, res, next) {
+  console.log(req.body.name);
+  console.log(req.body.number);
+
+  try {
+    const findPhoneEntry = await PhoneBook.findOne({
+      name: req.body.name,
+    }).exec();
+    console.log(findPhoneEntry);
+
+    if (findPhoneEntry !== null) {
+      const modifyPhonEntry = await PhoneBook.updateOne(
+        { name: req.body.name },
+        { number: req.body.number }
+      );
+
+      if (modifyPhonEntry) res.status(204).json('phone number changed');
+    } else {
+      next(new Error('user does not exist'));
+    }
+  } catch (error) {
+    next(new Error('entry cannot be modified'));
   }
 });
 
