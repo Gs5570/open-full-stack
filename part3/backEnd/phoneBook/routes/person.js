@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const PhoneBook = require('../models/phoneBook');
+const PhoneBookSchema = require('../models/phoneBook');
 const errorHandler = require('../middleware/errorhandler');
 
 router.get('/persons', async function (req, res, next) {
   try {
-    const allEntries = await PhoneBook.find({});
+    const allEntries = await PhoneBookSchema.find({});
     res.status(200).json(allEntries);
     console.log('All users fetched successfully');
   } catch (error) {
@@ -17,7 +17,7 @@ router.get('/persons/:id', async function (req, res, next) {
   let reqID = req.params.id;
 
   try {
-    const foundPhoneEntry = await PhoneBook.findById(reqID).exec();
+    const foundPhoneEntry = await PhoneBookSchema.findById(reqID).exec();
     if (foundPhoneEntry) {
       res.status(200).json(foundPhoneEntry);
     }
@@ -30,7 +30,7 @@ router.delete('/persons/:id', async function (req, res, next) {
   let reqID = req.params.id;
 
   try {
-    const deletedEntry = await PhoneBook.findByIdAndDelete(reqID);
+    const deletedEntry = await PhoneBookSchema.findByIdAndDelete(reqID);
     if (deletedEntry) {
       res.status(200).json('Deleted successfully');
     }
@@ -43,7 +43,7 @@ router.post('/persons', async function (req, res, next) {
   let body = req.body;
 
   try {
-    const createPhoneEntry = new PhoneBook({
+    const createPhoneEntry = new PhoneBookSchema({
       name: req.body.name,
       number: req.body.number,
     });
@@ -60,13 +60,13 @@ router.patch('/persons', async function (req, res, next) {
   console.log(req.body.number);
 
   try {
-    const findPhoneEntry = await PhoneBook.findOne({
+    const findPhoneEntry = await PhoneBookSchema.findOne({
       name: req.body.name,
     }).exec();
     console.log(findPhoneEntry);
 
     if (findPhoneEntry !== null) {
-      const modifyPhonEntry = await PhoneBook.updateOne(
+      const modifyPhonEntry = await PhoneBookSchema.updateOne(
         { name: req.body.name },
         { number: req.body.number }
       );

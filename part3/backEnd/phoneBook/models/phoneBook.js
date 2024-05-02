@@ -7,4 +7,5 @@ const phoneBookSchema = new Schema({
 });
 
 const PhoneBook = mongoose.model('PhoneBook', phoneBookSchema);
+
 module.exports = PhoneBook;
